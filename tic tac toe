@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+            background-color: #ccc;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .cell {
+            background-color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .cell:hover {
+            background-color: #e3f2fd;
+        }
+
+        .cell.x {
+            color: #1e88e5;
+        }
+
+        .cell.o {
+            color: #e53935;
+        }
+
+        .reset-btn {
+            margin-top: 25px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background-color: #4caf50;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s ease;
+        }
+
+        .reset-btn:hover {
+            background-color: #43a047;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Tic Tac Toe</h1>
+    <div class="status" id="status">Player X's turn</div>
+
+    <div class="board" id="board">
+        <button class="cell" data-index="0"></button>
+        <button class="cell" data-index="1"></button>
+        <button class="cell" data-index="2"></button>
+        <button class="cell" data-index="3"></button>
+        <button class="cell" data-index="4"></button>
+        <button class="cell" data-index="5"></button>
+        <button class="cell" data-index="6"></button>
+        <button class="cell" data-index="7"></button>
+        <button class="cell" data-index="8"></button>
+    </div>
+
+    <button class="reset-btn" id="resetBtn">Restart Game</button>
+
+    <script>
+        const board = document.getElementById('board');
+        const cells = document.querySelectorAll('.cell');
+        const statusText = document.getElementById('status');
+        const resetBtn = document.getElementById('resetBtn');
+
+        let currentPlayer = 'X';
+        let gameState = ["", "", "", "", "", "", "", "", ""];
+        let isGameActive = true;
+
+        const winningConditions = [
+            [0, 1, 2], // Rows
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6], // Columns
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8], // Diagonals
+            [2, 4, 6]
+        ];
+
+        function handleCellClick(e) {
+            const clickedCell = e.target;
+            const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+            // Check if the cell is already played or if the game is over
+            if (gameState[clickedCellIndex] !== "" || !isGameActive) {
+                return;
+            }
+
+            updateCell(clickedCell, clickedCellIndex);
+            checkForWinner();
+        }
+
+        function updateCell(cell, index) {
+            gameState[index] = currentPlayer;
+            cell.textContent = currentPlayer;
+            cell.classList.add(currentPlayer.toLowerCase());
+        }
+
+        function changePlayer() {
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            statusText.textContent = `Player ${currentPlayer}'s turn`;
+        }
+
+        function checkForWinner() {
+            let roundWon = false;
+
+            for (let i = 0; i < winningConditions.length; i++) {
+                const winCondition = winningConditions[i];
+                let a = gameState[winCondition[0]];
+                let b = gameState[winCondition[1]];
+                let c = gameState[winCondition[2]];
+
+                if (a === '' || b === '' || c === '') {
+                    continue;
+                }
+                if (a === b && b === c) {
+                    roundWon = true;
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                statusText.textContent = `Player ${currentPlayer} has won! 🎉`;
+                isGameActive = false;
+                return;
+            }
+
+            // Check for a draw
+            let roundDraw = !gameState.includes("");
+            if (roundDraw) {
+                statusText.textContent = "Game ended in a draw! 🫱🏼‍🫲🏼";
+                isGameActive = false;
+                return;
+            }
+
+            changePlayer();
+        }
+
+        function resetGame() {
+            currentPlayer = 'X';
+            gameState = ["", "", "", "", "", "", "", "", ""];
+            isGameActive = true;
+            statusText.textContent = "Player X's turn";
+            cells.forEach(cell => {
+                cell.textContent = "";
+                cell.classList.remove('x', 'o');
+            });
+        }
+
+        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+        resetBtn.addEventListener('click', resetGame);
+    </script>
+
+</body>
+</html>
